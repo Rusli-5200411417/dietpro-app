@@ -95,7 +95,8 @@ class LaporanController extends Controller
       $validator = Validator::make($request->all(), [
           'id_makanan' => 'required|array', // Ensure id_makanan is an array
           'id_makanan.*' => 'exists:makanan,id', // Validate each id_makanan element exists in the makanans table
-      ]);
+          'jumlah' => 'required|array'
+        ]);
   
       if ($validator->fails()) {
           return response()->json([
@@ -109,52 +110,47 @@ class LaporanController extends Controller
   
       $laporan = [];
   
-      foreach ($request->input('id_makanan') as $makananId) {
-          // Cek apakah laporan dengan id_makanan yang sama sudah ada pada hari yang sama
-          $existingLaporan = Laporan::where('id_user', $id)
-              ->where('id_makanan', $makananId)
-              ->whereDate('created_at', $today)
-              ->first();
-  
-          if ($existingLaporan) {
-              // Jika sudah ada, tambahkan jumlah
-              $existingLaporan->jumlah += 1;
-              
-              if ($existingLaporan->jumlah == 1) {
-                  // Jika jumlah adalah 1, set jumlah_kalori sama dengan kalori
-                  $existingLaporan->jumlah_kalori = $existingLaporan->kalori;
-              } else {
-                  // Jika jumlah lebih dari 1, hitung jumlah_kalori
-                  $existingLaporan->jumlah_kalori = $existingLaporan->kalori * $existingLaporan->jumlah;
-              }
-              
-              $existingLaporan->save();
-              $laporan[] = $existingLaporan; // Tambahkan laporan ke array respons
-          } else {
-              // Jika belum ada, buat laporan baru
-              $newLaporan = new Laporan();
-              $newLaporan->id_user = $id;
-              $newLaporan->id_makanan = $makananId;
-              $newLaporan->jumlah = 1;
-              
-              // Dapatkan kalori dari makanan yang dipilih
-              $makanan = Makanan::find($makananId);
-              if ($makanan) {
-                  $newLaporan->kalori = $makanan->Energi_kkal;
-              }
-              
-              if ($newLaporan->jumlah == 1) {
-                  // Jika jumlah adalah 1, set jumlah_kalori sama dengan kalori
-                  $newLaporan->jumlah_kalori = $newLaporan->kalori;
-              } else {
-                  // Jika jumlah lebih dari 1, hitung jumlah_kalori
-                  $newLaporan->jumlah_kalori = $newLaporan->kalori * $newLaporan->jumlah;
-              }
-              
-              // Set other fields as needed
-              $newLaporan->save();
-              $laporan[] = $newLaporan; // Tambahkan laporan baru ke array respons
-          }
+      foreach ($request->input('id_makanan') as $index => $makananId) {
+        $jumlah = $request->input('jumlah')[$index]; // Ambil nilai jumlah yang sesuai dengan indeks saat ini
+
+        // Cek apakah laporan dengan id_makanan yang sama sudah ada pada hari yang sama
+        $existingLaporan = Laporan::where('id_user', $id)
+            ->where('id_makanan', $makananId)
+            ->whereDate('created_at', $today)
+            ->first();
+
+        if ($existingLaporan) {
+            // Jika sudah ada, tambahkan jumlah baru ke jumlah lama
+            $existingLaporan->jumlah += $jumlah;
+
+            if ($existingLaporan->jumlah == $jumlah) {
+                // Jika jumlah sekarang sama dengan jumlah baru, set jumlah_kalori sama dengan kalori
+                $existingLaporan->jumlah_kalori = $existingLaporan->kalori * $existingLaporan->jumlah;
+            } else {
+                // Jika jumlah sekarang tidak sama dengan jumlah baru, hitung jumlah_kalori baru
+                $existingLaporan->jumlah_kalori += $existingLaporan->kalori * $jumlah;
+            }
+
+            $existingLaporan->save();
+            $laporan[] = $existingLaporan; // Tambahkan laporan ke array respons
+        } else {
+            // Jika belum ada, buat laporan baru
+            $newLaporan = new Laporan();
+            $newLaporan->id_user = $id;
+            $newLaporan->id_makanan = $makananId;
+            $newLaporan->jumlah = $jumlah; // Gunakan nilai jumlah yang diambil dari permintaan
+
+            // Dapatkan kalori dari makanan yang dipilih
+            $makanan = Makanan::find($makananId);
+            if ($makanan) {
+                $newLaporan->kalori = $makanan->Energi_kkal;
+                $newLaporan->jumlah_kalori = $newLaporan->kalori * $jumlah;
+            }
+
+            // Set other fields as needed
+            $newLaporan->save();
+            $laporan[] = $newLaporan; // Tambahkan laporan baru ke array respons
+        }
       }
   
       return response()->json([
