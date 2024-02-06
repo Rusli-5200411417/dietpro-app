@@ -152,12 +152,54 @@ class LaporanController extends Controller
             $laporan[] = $newLaporan; // Tambahkan laporan baru ke array respons
         }
       }
-  
       return response()->json([
           'code' => 200,
           'message' => 'Laporan created or updated successfully',
           'data' => $laporan, // Sisipkan laporan dalam respons
       ], 200);
   }
-  
+
+  public function detail($id){
+    // Menggunakan metode find untuk mencari laporan berdasarkan ID
+    $data = Laporan::find($id);
+
+    // Periksa apakah laporan ditemukan
+    if (!$data) {
+        return response()->json([
+            'code' => 404,
+            'message' => "Data dengan ID $id tidak ditemukan",
+            'data' => null
+        ], 404);
+    }
+
+    return  response()->json([
+        'code'  =>  200,
+        'message' =>  "Data dengan ID $id berhasil dimuat",
+        'data' => $data   
+    ]);
+    } 
+
+    public function delete($id)
+    {
+        // Cari laporan berdasarkan ID
+        $laporan = Laporan::find($id);
+
+        // Periksa apakah laporan ditemukan
+        if (!$laporan) {
+            return response()->json([
+                'code' => 404,
+                'message' => "Data dengan ID $id tidak ditemukan",
+            ], 404);
+        }
+
+        // Hapus laporan
+        $laporan->delete();
+
+        return response()->json([
+            'code' => 200,
+            'message' => "Data dengan ID $id berhasil dihapus",
+        ]);
+    }
 }
+
+
