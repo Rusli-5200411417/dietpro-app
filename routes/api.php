@@ -28,12 +28,10 @@ Route::post('register', [AuthController::class, 'register']);
 Route::put('update-user/{id}', [AuthController::class, 'update']);
 Route::post('upload-user/{id}', [AuthController::class, 'upload']);
 
-Route::prefix('laporan')->group(function () {
-    Route::post('{id}', [LaporanController::class, 'index']);
-    Route::post('minggu/{id}', [LaporanController::class, 'dataSatuMinggu']);
-    Route::post('bulan/{id}', [LaporanController::class, 'dataSatuBulan']);
-    Route::post('store/{id}', [LaporanController::class, 'store']);
-});
+Route::post('{id}', [LaporanController::class, 'index']);
+Route::post('minggu/{id}', [LaporanController::class, 'dataSatuMinggu']);
+Route::post('bulan/{id}', [LaporanController::class, 'dataSatuBulan']);
+Route::post('store/{id}', [LaporanController::class, 'store']);
 
 Route::delete('delete/{id}', [LaporanController::class, 'delete']);
 

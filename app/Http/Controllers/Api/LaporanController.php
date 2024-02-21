@@ -159,26 +159,41 @@ class LaporanController extends Controller
       ], 200);
   }
 
-  public function detail($id){
-    // Menggunakan metode find untuk mencari laporan berdasarkan ID
-    $data = Laporan::find($id);
+    public function detail($id) {
+        // Menggunakan metode find untuk mencari laporan berdasarkan ID
+        $laporan = Laporan::find($id);
 
-    // Periksa apakah laporan ditemukan
-    if (!$data) {
-        return response()->json([
-            'code' => 404,
-            'message' => "Data dengan ID $id tidak ditemukan",
-            'data' => null
-        ], 404);
+        // Periksa apakah laporan ditemukan
+        if (!$laporan) {
+            return response()->json([
+                'code' => 404,
+                'message' => "Data dengan ID $id tidak ditemukan",
+                'data' => null
+            ], 404);
+        }
+
+        // Mengambil ID makanan dari laporan
+        $id_makanan = $laporan->id_makanan;
+
+        // Menggunakan ID makanan untuk mencari data makanan
+        $data_makanan = Makanan::find($id_makanan);
+
+        // Periksa apakah data makanan ditemukan
+        if (!$data_makanan) {
+            return response()->json([
+                'code' => 404,
+                'message' => "Data makanan dengan ID $id_makanan tidak ditemukan",
+                'data' => null
+            ], 404);
+        }
+
+        return  response()->json([
+            'code'  =>  200,
+            'message' =>  "Data dengan ID $id berhasil dimuat",
+            'data' => $data_makanan   
+        ]);
     }
-
-    return  response()->json([
-        'code'  =>  200,
-        'message' =>  "Data dengan ID $id berhasil dimuat",
-        'data' => $data   
-    ]);
-    } 
-
+    
     public function delete($id)
     {
         // Cari laporan berdasarkan ID
