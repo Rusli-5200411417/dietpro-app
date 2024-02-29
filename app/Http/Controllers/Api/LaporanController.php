@@ -215,6 +215,24 @@ class LaporanController extends Controller
             'message' => "Data dengan ID $id berhasil dihapus",
         ]);
     }
+
+    public function hasilDetailLaporan($id){
+        $detailLaporan = Laporan::find($id);
+         
+        if (!$detailLaporan) {
+            return response()->json([
+                'code' => 404,
+                'message' => "Data laporan dengan ID $id tidak ditemukan",
+                'data' => null
+            ], 404);
+        }
+
+        return  response()->json([
+            'code'  =>  200,
+            'message' =>  "Data dengan ID $id berhasil dimuat",
+            'data' => $detailLaporan   
+        ]);
+    }
 }
 
 

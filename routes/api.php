@@ -28,7 +28,7 @@ Route::post('register', [AuthController::class, 'register']);
 Route::put('update-user/{id}', [AuthController::class, 'update']);
 Route::post('upload-user/{id}', [AuthController::class, 'upload']);
 
-Route::post('{id}', [LaporanController::class, 'index']);
+Route::post('laporan/{id}', [LaporanController::class, 'index']);
 Route::post('minggu/{id}', [LaporanController::class, 'dataSatuMinggu']);
 Route::post('bulan/{id}', [LaporanController::class, 'dataSatuBulan']);
 Route::post('store/{id}', [LaporanController::class, 'store']);
@@ -36,6 +36,7 @@ Route::post('store/{id}', [LaporanController::class, 'store']);
 Route::delete('delete/{id}', [LaporanController::class, 'delete']);
 
 Route::post('detail-laporan/{id}', [LaporanController::class, 'detail']);
+Route::post('hasil-laporan/{id}', [LaporanController::class, 'hasilDetailLaporan']);
 
 Route::post('makanan', [MakananController::class, 'index']);
 
